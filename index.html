@@ -6,8 +6,7 @@
     <script>
         var socket = io();
         socket.on('message', function(msg){
-            console.log('Got something');
-            $('#message').append($('<li>').text(msg));
+            $('#message').append(msg + "<br/>");
         });
     </script>
 </head>
