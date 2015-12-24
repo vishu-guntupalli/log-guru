@@ -13,7 +13,7 @@ module.exports.doesValueExistInDb = function (parameter) {
             var collection = db.collection(collectionName);
             var obj = {};
             obj[parameter] = {$exists: true, $ne: null};
-            collection.find(obj, function(data, err){
+            collection.find(obj, function(err, data){
                 if(!err && (data != null)){
                     return true;
                 }
