@@ -27,62 +27,73 @@ fs.exists(logFilePath, function(exists) {
                 lineTimeTillMilliSeconds = lineTime[1];
                 lineLogLevel = deconstructedLine[2];
 
-                if( db.doesValueExistInDb(lineDate), function(exists){
+                 db.doesValueExistInDb(lineDate, function(dateExists) {
 
-                    console.log(exists)
+                     if (dateExists) {
+                         console.log("Date exists")
 
-                    if(db.doesValueExistInDb(lineDate+'.'+lineTimeTillSeconds)) {
-                        console.log("Time till seconds Exists")
+                         db.doesValueExistInDb(lineDate + '.' + lineTimeTillSeconds, function(timeTillSecondsExists) {
+                             if (timeTillSecondsExists) {
+                                 console.log("Time till seconds Exists")
 
-                        if(db.doesValueExistInDb(lineDate+'.'+lineTimeTillSeconds+'.'+lineTimeTillMilliSeconds)) {
-                            console.log("Time till milliseconds exists")
+                                 db.doesValueExistInDb(lineDate + '.' + lineTimeTillSeconds + '.' + lineTimeTillMilliSeconds, function(timeTillMsExists) {
+                                     if (timeTillMsExists) {
+                                         console.log("Time till milliseconds exists")
 
-                            if(db.doesValueExistInDb(lineDate+'.'+lineTimeTillSeconds+'.'+lineTimeTillMilliSeconds+'.'+lineLogLevel)) {
-                                console.log("Log level exists")
+                                         db.doesValueExistInDb(lineDate + '.' + lineTimeTillSeconds + '.' + lineTimeTillMilliSeconds + '.' + lineLogLevel, function(logLevelExists) {
+                                             if(logLevelExists) {
+                                                 console.log("Log level exists")
 
-                                if (longLineLogMessage == '') {
-                                    lineLogMessage = deconstructedLine.slice(3).join("");
-                                }
-                                else {
-                                    lineLogMessage = longLineLogMessage;
-                                    longLineLogMessage = '';
-                                }
-                                if(db.doesValueExistInDb(lineDate+'.'+lineTimeTillSeconds+'.'+lineTimeTillMilliSeconds+'.'+lineLogLevel+'.'+lineLogMessage)){
-                                    console.log('everything already exists')
-                                }
-                                else {
-                                    //db.insertIntoDb(deconstructedLine[0].lineTime[0].lineTime[1].deconstructedLine[2].lineLogMessage)
-                                }
-                            }
-                        }
-                    }
-                    }) {
+                                                 if (longLineLogMessage == '') {
+                                                     lineLogMessage = deconstructedLine.slice(3).join("");
+                                                 }
+                                                 else {
+                                                     lineLogMessage = longLineLogMessage;
+                                                     longLineLogMessage = '';
+                                                 }
+                                                 db.doesValueExistInDb(lineDate + '.' + lineTimeTillSeconds + '.' + lineTimeTillMilliSeconds + '.' + lineLogLevel + '.' + lineLogMessage, function(logMessageExists) {
+                                                     if(logMessageExists) {
+                                                         console.log('everything already exists')
+                                                     }
+                                                     else {
+                                                         //db.insertIntoDb(deconstructedLine[0].lineTime[0].lineTime[1].deconstructedLine[2].lineLogMessage)
+                                                     }
+                                                 })
+                                             }
 
-                }
-                else {
-                    if (longLineLogMessage == '') {
-                        lineLogMessage = deconstructedLine.slice(3).join("");
-                    }
-                    else {
-                        lineLogMessage = longLineLogMessage;
-                        longLineLogMessage = '';
-                    }
-                    console.log('Nothing exists trying into insert');
+                                         })
+                                     }
+                                 })
+                             }
+                         })
+                     }
 
-                    var obj1 = {};
-                    obj1[lineLogLevel] = lineLogMessage;
+                     else {
+                         if (longLineLogMessage == '') {
+                             lineLogMessage = deconstructedLine.slice(3).join("");
+                         }
+                         else {
+                             lineLogMessage = longLineLogMessage;
+                             longLineLogMessage = '';
+                         }
+                         console.log('Nothing exists trying into insert');
 
-                    var obj2 ={};
-                    obj2[lineTimeTillMilliSeconds] = obj1;
+                         var obj1 = {};
+                         obj1[lineLogLevel] = lineLogMessage;
 
-                    var obj3 = {};
-                    obj3[lineTimeTillSeconds] = obj2;
+                         var obj2 ={};
+                         obj2[lineTimeTillMilliSeconds] = obj1;
 
-                    var obj4 = {};
-                    obj4[lineDate] = obj3;
+                         var obj3 = {};
+                         obj3[lineTimeTillSeconds] = obj2;
 
-                    db.insertIntoDB(obj4);
-                }
+                         var obj4 = {};
+                         obj4[lineDate] = obj3;
+
+                         db.insertIntoDB(obj4);
+                     }
+                 })
+
             }
 
             else {
