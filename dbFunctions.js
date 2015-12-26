@@ -13,17 +13,15 @@ module.exports.doesValueExistInDb = function (db, parameter, callback) {
             callback(true);
         }
         else {
+            console.log(err)
             callback(false);
         }
-        db.close();
     });
 }
 
 module.exports.insertIntoDB = function(db, parameter) {
     var collection = db.collection(collectionName);
-    collection.insert(parameter, function(data){
-        db.close();
-    });
+    collection.insert(parameter);
 }
 
 

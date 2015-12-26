@@ -115,4 +115,9 @@ var doJob = function(connection, lr) {
             longLineLogMessage = longLineLogMessage.concat(line);
         }
     });
+
+    lr.on('close', function(){
+        console.log('End of file')
+        connection.close();
+    })
 }
