@@ -6,15 +6,14 @@ var collectionName = 'epicenter';
 
 module.exports.doesValueExistInDb = function (db, parameter, callback) {
     var collection = db.collection(collectionName);
-    var obj = {};
-    obj[parameter] = {$exists: true, $ne: null};
-    collection.findOne(obj, function(err, data){
+
+    collection.findOne(parameter, function(err, data){
         if(!err && (data != null)){
-            callback(true);
+            callback(true, data);
         }
         else {
             console.log(err)
-            callback(false);
+            callback(false, data);
         }
     });
 }
