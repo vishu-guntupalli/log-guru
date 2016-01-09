@@ -35,7 +35,7 @@ mongoClient.connect(mongoDbUrl, function(err, connection) {
     }
 });
 
-function insertIntoDb(connection, lineLogLevel, lineLogMessage, lineTimeTillMilliSeconds, lineTimeTillSeconds, lineDate, extractLineVariables) {
+function insertIntoDb(connection, lineLogLevel, lineLogMessage, lineTimeTillMilliSeconds, lineTimeTillSeconds, lineDate, extractLineVariables, deconstructedLine) {
     var arr0 = [];
     arr0[0] = lineLogMessage;
 
@@ -60,10 +60,10 @@ function insertIntoDb(connection, lineLogLevel, lineLogMessage, lineTimeTillMill
     var obj4 = {};
     obj4[lineDate] = arr3;
 
-    db.insertIntoDB(connection, obj4, extractLineVariables);
+    db.insertIntoDB(connection, obj4, extractLineVariables, deconstructedLine);
 }
 
-var extractLineVariables = function () {
+var extractLineVariables = function (deconstructedLine) {
     lineDate = deconstructedLine[0];
     lineTime = deconstructedLine[1].split(",");
     lineTimeTillSeconds = lineTime[0];
@@ -74,12 +74,13 @@ var extractLineVariables = function () {
 
 var doJob = function(connection, lr) {
 
-    function doTheInsertingBusiness(callback) {
+    function doTheInsertingBusiness(callback, deconstructedLine) {
         var extractLineVariables = callback;
+        var deconstructedLine = deconstructedLine;
         var o1= {};
         o1[lineDate] = {$exists: true, $ne: null};
 
-        db.doesValueExistInDb(connection, o1, function (dateExists, result, extractLineVariables) {
+        db.doesValueExistInDb(connection, o1, function (dateExists, result, extractLineVariables, deconstructedLine) {
 
             if (dateExists) {
                 resultObject = result;
@@ -91,7 +92,7 @@ var doJob = function(connection, lr) {
                 var o1 = {};
                 o1[lineDate] = o2;
 
-                db.doesValueExistInDb(connection, o1, function (timeTillSecondsExists, result, extractLineVariables) {
+                db.doesValueExistInDb(connection, o1, function (timeTillSecondsExists, result, extractLineVariables, deconstructedLine) {
                     if (timeTillSecondsExists) {
                         resultObject = result;
 
@@ -106,7 +107,7 @@ var doJob = function(connection, lr) {
                         var o1 = {};
                         o1[lineDate] = o2;
 
-                        db.doesValueExistInDb(connection, o1, function (timeTillMsExists, result, extractLineVariables) {
+                        db.doesValueExistInDb(connection, o1, function (timeTillMsExists, result, extractLineVariables, deconstructedLine) {
                             if (timeTillMsExists) {
                                 resultObject = result;
 
@@ -125,7 +126,7 @@ var doJob = function(connection, lr) {
                                 var o1 = {};
                                 o1[lineDate] = o2;
 
-                                db.doesValueExistInDb(connection, o1, function (logLevelExists, result, extractLineVariables) {
+                                db.doesValueExistInDb(connection, o1, function (logLevelExists, result, extractLineVariables, deconstructedLine) {
                                     if (logLevelExists) {
                                         resultObject = result;
 
@@ -148,44 +149,44 @@ var doJob = function(connection, lr) {
                                         var o1 = {};
                                         o1[lineDate] = o2;
 
-                                        db.doesValueExistInDb(connection, o1, function (logMessageExists, result, extractLineVariables) {
+                                        db.doesValueExistInDb(connection, o1, function (logMessageExists, result, extractLineVariables, deconstructedLine) {
                                             if (logMessageExists) {
                                                 console.log('everything already exists')
-                                                extractLineVariables();
+                                                extractLineVariables(deconstructedLine);
                                             }
                                             else {
-                                                insertIntoDb(connection, lineLogLevel, lineLogMessage, lineTimeTillMilliSeconds, lineTimeTillSeconds, lineDate, extractLineVariables);
+                                                insertIntoDb(connection, lineLogLevel, lineLogMessage, lineTimeTillMilliSeconds, lineTimeTillSeconds, lineDate, extractLineVariables, deconstructedLine);
                                             }
-                                        }, extractLineVariables)
+                                        }, extractLineVariables, deconstructedLine)
                                     }
                                     else {
 
                                     }
 
-                                }, extractLineVariables)
+                                }, extractLineVariables, deconstructedLine)
                             }
-                        }, extractLineVariables)
+                        }, extractLineVariables, deconstructedLine)
                     }
-                }, extractLineVariables)
+                }, extractLineVariables, deconstructedLine)
             }
 
             else {
                 console.log('Nothing exists trying into insert ');
-                insertIntoDb(connection, lineLogLevel, lineLogMessage, lineTimeTillMilliSeconds, lineTimeTillSeconds, lineDate, extractLineVariables);
+                insertIntoDb(connection, lineLogLevel, lineLogMessage, lineTimeTillMilliSeconds, lineTimeTillSeconds, lineDate, extractLineVariables, deconstructedLine);
             }
-        }, extractLineVariables)
+        }, extractLineVariables, deconstructedLine)
     }
 
     lr.on('line', function (line) {
-
         deconstructedLine = line.split(/\s+/);
+
         if (Date.parse(deconstructedLine[0])) {
 
             if(lineDate == '') {
-                extractLineVariables();
+                extractLineVariables(deconstructedLine);
             }
             else {
-                doTheInsertingBusiness( extractLineVariables );
+                doTheInsertingBusiness( extractLineVariables, deconstructedLine );
             }
 
         }
@@ -195,6 +196,6 @@ var doJob = function(connection, lr) {
     });
 
     lr.on('close', function(){
-        doTheInsertingBusiness(function(){});
+        doTheInsertingBusiness(extractLineVariables, deconstructedLine);
     })
 }
