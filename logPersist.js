@@ -151,6 +151,7 @@ var doJob = function(connection, lr) {
 
                                         db.doesValueExistInDb(connection, o1, function (logMessageExists, result, extractLineVariables, deconstructedLine) {
                                             if (logMessageExists) {
+                                                resultObject = result;
                                                 console.log('everything already exists')
                                                 extractLineVariables(deconstructedLine);
                                             }
